@@ -31,6 +31,7 @@
     this.matcher = this.options.matcher || this.matcher
     this.sorter = this.options.sorter || this.sorter
     this.highlighter = this.options.highlighter || this.highlighter
+    this.updater = this.options.updater || this.updater
     this.shown = false
     this.selected = false
     this.refresh()
@@ -49,6 +50,8 @@
       var combobox = $(this.options.template)
       this.$source.before(combobox)
       this.$source.hide()
+      combobox.find('.combobox-input').attr('name', combobox.find('select').attr('name'))
+      combobox.find('select').removeAttr('name')
       return combobox
     }
 
@@ -112,6 +115,10 @@
     this.$target.val('')
     this.$container.removeClass('combobox-selected')
     this.selected = false
+  }
+
+  , checkTarget: function() {
+    this.$target.val(this.updater(this.$element.val()))
   }
 
   , triggerChange: function () {
@@ -187,7 +194,7 @@
           break
 
         default:
-          this.clearTarget()
+          this.checkTarget()
           this.lookup()
       }
 
@@ -199,12 +206,7 @@
   , blur: function (e) {
       var that = this
       this.focused = false
-      var val = this.$element.val()
-      if (!this.selected && val !== '' ) {
-        this.$element.val('')
-        this.$source.val('').trigger('change')
-        this.$target.val('').trigger('change')
-      }
+
       if (!this.mousedover && this.shown) setTimeout(function () { that.hide() }, 200)
     }
 
